@@ -8,6 +8,9 @@ program bst_test
     character(len=length):: deity1,deity2,transc,prep
     character(len=:),allocatable::tdeity1
     character(len=:),allocatable::tdeity2
+    
+    !Why do we complicate our lives making the tree to order the names?
+    !Instead of comparing name by name (order n) we order it in order log_2(n), being much faster
 
     type(a_tree_node), pointer :: root
 
@@ -16,8 +19,8 @@ program bst_test
     
     root => null()
     do
-        read(*, *, iostat=iostatus) deity1,transc,amount,prep,deity2!iostat nos dice que cuando llegue al final de programa que pare
-        if (iostatus /= 0) exit !iostat te lo da el read
+        read(*, *, iostat=iostatus) deity1,transc,amount,prep,deity2!iostat tells us that when it reaches the end of the program to stop
+        if (iostatus /= 0) exit 
 
         if (transc /= 'lent' .and. transc /= 'borrowed') then
             print'(a,a,a)', "Wrong transaction '",trim(transc),"'."
@@ -27,12 +30,11 @@ program bst_test
             call bst_insert(root,tdeity1)
 
             tdeity2=trim(deity2)
-            call bst_insert(root,tdeity2)!esto lo compara con el anterior se llama a si mismo
-            !con los datos que teniamos antes
+            call bst_insert(root,tdeity2)!this compares it with the previous one it calls itself with the data we had before
 
             call insert_amount(root, tdeity1, tdeity2, amount,transc)
 
-            deallocate(tdeity1)!para limpiar la memoria es necesario
+            deallocate(tdeity1)!to clear the memory it is necessary
             deallocate(tdeity2)
         end if
     
@@ -48,10 +50,5 @@ print '(a, 2x, f0.2)', 'Net debit:', total_debit
 print '(a, 1x, f0.2)', 'Net credit:', total_credit
 
 call bst_destroy(root)
-
-!¿por qué nos complicamos la vida haciendo el árbol para ordenar los nombres? 
-!en vez de comparar nombre por nombre (orden n) lo ordenamos de orden log_2(n), siendo mucho más rapido
-
-
 
 end program bst_test
