@@ -2,12 +2,12 @@
 module alblist
     implicit none
 
-    !definición de las variables
+    ! Defining the variables
     type :: a_list_item
         type(a_tree_node), pointer :: deity
         real (kind=8):: amount
-        type(a_list_item), pointer :: next!esto nos permite seguir añadiendo cosas a la lista
-    end type a_list_item!es como el left y rigth
+        type(a_list_item), pointer :: next ! This allows us to continue adding elements to the list
+    end type a_list_item 
 
     type :: a_tree_node
         character(len=:), allocatable :: name
@@ -19,17 +19,17 @@ module alblist
 
     contains
 
-    !subrutina que crea el arbol
+    ! Subroutine that creates the tree
     recursive subroutine bst_insert( node, newname )
-        type(a_tree_node), pointer, intent(in out) :: node !intent le dice a la subrutina si se puede modificar o no
-        character(len=:),allocatable,intent(in)     :: newname !solo lectura
+        type(a_tree_node), pointer, intent(in out) :: node !intent tells the subroutine whether it can be modified or not
+        character(len=:),allocatable,intent(in)     :: newname !read only
 
-        if (.not.associated( node )) then !si no esta asociado entra
-            allocate(node)!crea un nodo
-            node = a_tree_node(name=newname, left=null(), right=null(),debit=null(), credit=null())!crea los hijos vacios
+        if (.not.associated( node )) then !if it is not associated enter
+            allocate(node) !create a node
+            node = a_tree_node(name=newname, left=null(), right=null(),debit=null(), credit=null())!create the empty children
             print'(a,a)',newname,' has been added.'
-        else if (llt(newname,node%name)) then !la funcion compara de forma alfabetica
-            call bst_insert( node%left, newname ) !entra si newname es menor alfabeticamente que nodename
+        else if (llt(newname,node%name)) then !function compares alphabetically
+            call bst_insert( node%left, newname )!enter if newname is alphabetically less than nodename
         else if (lgt(newname,node%name)) then
             call bst_insert( node%right, newname ) 
         else 
@@ -37,7 +37,7 @@ module alblist
         end if
     end subroutine bst_insert
 
-    !subrutina que imprime el arbol
+    !subroutine that prints the tree
     recursive subroutine bst_print( root )
         type(a_tree_node), pointer, intent(in out) :: root 
 
@@ -61,7 +61,7 @@ module alblist
 
     end subroutine bst_print
 
-    !subrutina que destruye el arbol
+    !subroutine that destroys the tree
     recursive subroutine bst_destroy( root )
         type(a_tree_node), pointer, intent(in out) :: root
 
@@ -75,36 +75,32 @@ module alblist
     end subroutine bst_destroy
 
 
-    !subrutina que añade elementos a la lista
+    !subroutine that adds elements to the list
     recursive subroutine list_insert( head, deity_node, newamount  )
-        type(a_list_item), pointer, intent(in out) :: head !intent le dice a la subrutina si se puede modificar o no
+        type(a_list_item), pointer, intent(in out) :: head 
         type(a_tree_node), pointer, intent(in) :: deity_node
         real (kind=8),intent(in) :: newamount
         type(a_list_item),pointer::aux
 
-        if (.not.associated( head )) then !si no esta asociado entra
+        if (.not.associated( head )) then 
             allocate(head)
-            head = a_list_item(deity=null(), amount=newamount, next=null() )!crea los hijos vacios
+            head = a_list_item(deity=null(), amount=newamount, next=null() )
             head%deity=>deity_node
-        else if (llt(deity_node%name,head%deity%name)) then !esto es menor
-            !si es menor se complica queremos que el head señale al menor y el menor luego al de ahora
-            !el allocate es necesario ahora por que ahora no estamos añadiendo elementos al final
-            !necesitamos añadir entre medias un nodo
+        else if (llt(deity_node%name,head%deity%name)) then !menor
+            !if it is minor it gets complicated, we want the head to point to the minor and the minor then to the current one, 
+            !the allocate is necessary now because now we are not adding elements at the end, we need to add a node in between
             allocate(aux)
             aux=a_list_item(deity=null(), amount=newamount, next=null() )
             aux%deity=>deity_node
-            !creamos el nuevo nodo temporal para poder señalar e insertarlo
-            !queremos que el head apunte
             aux%next=>head
             head=>aux
 
-            !esto lo hacemos para insertar el nodo ,creamos un nodo auxiliar que apunta al head(no al head next)
-            !y hacemos que el head apunte al auxiliar
+            !We do this to insert the node, we create an auxiliary node that points to the head 
+            !(not head next) and we make the head point to the auxiliary
 
 
-        else if (lgt(deity_node%name,head%deity%name)) then !head es mi lista en sitio en elque estamos ahora
-            call list_insert( head%next, deity_node, newamount) !el otro es el que quieres insertar
-        !esto si es mayor
+        else if (lgt(deity_node%name,head%deity%name)) then !head is my list on the site we are on now
+            call list_insert( head%next, deity_node, newamount) 
 
         else
             head%amount=head%amount+newamount
@@ -115,7 +111,7 @@ module alblist
 
 
 
-!subrutina que imprime una lista
+!subroutine that prints a list
     recursive subroutine list_print( head )
         type(a_list_item), pointer, intent(in out) :: head
 
@@ -128,7 +124,7 @@ module alblist
     end subroutine list_print
 
 
-!subrutina que destruye una lista
+!subroutine that destroys a list
     recursive subroutine list_destroid( head )
     type(a_list_item), pointer, intent(in out) :: head
 
@@ -140,7 +136,7 @@ module alblist
     end subroutine list_destroid
 
 
-!funcion que encuentra el nodo que le das y lo señala con un puntero como salida
+!function that finds the node you give it and marks it with a pointer as output
     recursive function search_node(root,name)result(node_result)
         type(a_tree_node), pointer, intent(in out) :: root
         character(len=:),allocatable ,intent(in out):: name
@@ -155,7 +151,7 @@ module alblist
         end if
     end function search_node
 
-!subrutina que inserta cantidades al tipo de transaccion que se le indica
+!subroutine that inserts amounts to the type of transaction that is indicated
     subroutine insert_amount(root, name_deity1, name_deity2, amount,transaction)
         type(a_tree_node), pointer, intent(in out)    :: root
         character(len=:), allocatable, intent(in out) :: name_deity1
@@ -183,7 +179,7 @@ module alblist
 
 
 
-!función que suma todo el crédito
+!function that adds all the credit
     recursive function totalamount_credit(root) result(total_credit)
         type(a_tree_node),pointer,intent(in)::root
         type(a_list_item), pointer :: temp
@@ -193,8 +189,8 @@ module alblist
         total_credit=0.0
         total_left=0.0
         total_right=0.0
-        !la idea esque sume por partes, todo lo que hay a la derecha del nodo, a sí mismoy a la izquierda y que
-        !asi se vaya llamando a si mismo y sumandolo todo
+        !The idea is that it adds by parts, everything that is to the right of the node,
+        !to itself and to the left and that, in this way, it calls itself and adds everything
         if (associated(root)) then
             total_left=totalamount_credit(root%left)
             if (associated(root%credit)) then 
@@ -216,6 +212,7 @@ module alblist
     end function totalamount_credit
 
 
+    !function that adds all the dedit
     recursive function totalamount_debit(root) result(total_debit)
         type(a_tree_node),pointer,intent(in)::root
         type(a_list_item), pointer :: temp
@@ -240,7 +237,6 @@ module alblist
             total_right=totalamount_debit(root%right)
 
             total_debit=total_left+total_right+total_debit
-
 
         end if
         return
